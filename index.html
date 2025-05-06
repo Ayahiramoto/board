@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>無限返信掲示板</title>
+    <style>
+        .post { margin: 10px; border-left: 2px solid #aaa; padding-left: 10px; }
+    </style>
+</head>
+<body>
+    <h1>無限返信掲示板</h1>
+    <form action="/post" method="post">
+        <textarea name="content" placeholder="何か書けよ" required></textarea><br>
+        <input type="submit" value="新規投稿">
+    </form>
+    <hr>
+    {% macro render_post(post, level=0) %}
+        <div class="post" style="margin-left: {{ level * 20 }}px">
+            <p><strong>#{{ post.id }}</strong>: {{ post.content }}</p>
+            <form action="/post" method="post">
+                <input type="hidden" name="parent_id" value="{{ post.id }}">
+                <textarea name="content" required placeholder="返信しろや"></textarea><br>
+                <input type="submit" value="返信">
+            </form>
+            {% for child in post.children %}
+                {{ render_post(child, level + 1) }}
+            {% endfor %}
+        </div>
+    {% endmacro %}
+
+    {% for post in posts %}
+        {{ render_post(post) }}
+    {% endfor %}
+</body>
+</html>
